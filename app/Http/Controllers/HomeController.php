@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Route;
 
 use App\Models\TaskRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use App\Models\Task;
@@ -44,8 +45,7 @@ class HomeController extends Controller
                 'isAssigned' => $isAssigned,
             ];
         });
-        
-        Log::info($tasksWithAssignment);
+
         return view('home', ['objects' => $tasksWithAssignment]);
     }
 

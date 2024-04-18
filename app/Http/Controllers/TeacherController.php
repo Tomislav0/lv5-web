@@ -6,7 +6,7 @@ use App\Models\Task;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
-
+use App\Models\User;
 class TeacherController extends Controller
 {
     /**
@@ -26,6 +26,8 @@ class TeacherController extends Controller
      */
     public function newTask($lang)
     {
+        $user = User::where('id', auth()->id())->get(); 
+        if($user[0]->role == config('roles.student')) return redirect()->route('home');
         App::setLocale($lang);
         return view('task');
     }

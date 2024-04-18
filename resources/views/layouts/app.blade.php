@@ -55,11 +55,13 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    @isNotStudent
                                     <a class="dropdown-item" href="{{ route('task', ['lang' => 'en']) }}"
                                       
                                                      >
                                         {{ __('Tasks') }}
                                     </a>
+                                    @endisNotStudent
 
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
