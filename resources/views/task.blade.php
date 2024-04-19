@@ -1,8 +1,7 @@
-<!-- resources/views/forms/create.blade.php -->
 
 @extends('layouts.app')
 
-@section('content') <!-- Display flash success message -->
+@section('content') 
     @if(session('success'))
         <script>
             alert("{{ session('success') }}");
@@ -20,7 +19,7 @@
 
     </div>
     <h1>{{__('task.add_task')}}</h1>
-    <form method="POST" action="{{ route('store-form') }}">
+    <form method="POST" action="{{ route('create-task') }}">
         @csrf
 
         <div class="form-group">
@@ -53,16 +52,10 @@
 
 <script>
     function updateFormAction() {
-        // Get the selected locale value from the dropdown
         var selectedLocale = document.getElementById('localeSelect').value;
-        
-        // Get the form element
         var form = document.getElementById('taskForm');
         console.log(selectedLocale)
-        // Update the form action with the selected locale value
         form.action = "{{ route('task', ['lang' => ':locale']) }}".replace(':locale', selectedLocale);
-        
-        // Submit the form
         form.submit();
     }
 </script>

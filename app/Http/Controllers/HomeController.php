@@ -2,14 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Route;
-
 use App\Models\TaskRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use App\Models\Task;
-use Illuminate\Support\Facades\Log; 
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -30,31 +26,58 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $taskRequests = TaskRequest::where('user', auth()->id())->get('task');
-        $tasks = Task::where('assignedTo', null)->get();
+        $user = User::where('id', auth()->id())->get();
+        if ($user[0]->role === config('roles.student')) {
 
-        $tasksWithAssignment = $tasks->map(function ($task) use ($taskRequests) {
-            // Check if the task ID exists in any TaskRequest of the authenticated user
-            $isAssigned = $taskRequests->contains('task', $task->id);
-        
-            // Create a new object with the existing task attributes and isAssigned property
-            return [
-                'id' => $task->id,
-                'name' => $task->name,
-                'name_en' => $task->name_en,
-                'isAssigned' => $isAssigned,
-            ];
-        });
+            $taskRequests = TaskRequest::where('user', auth()->id())->get('task');
+            $tasks = Task::where('assignedTo', null)->get();
 
-        return view('home', ['objects' => $tasksWithAssignment]);
+            $tasksWithAssignment = $tasks->map(function ($task) use ($taskRequests) {
+                $isAssigned = $taskRequests->contains('task', $task->id);
+                return [
+                    'id' => $task->id,
+                    'name' => $task->name,
+                    'name_en' => $task->name_en,
+                    'isAssigned' => $isAssigned,
+                ];
+            });
+
+            return view('home', ['objects' => $tasksWithAssignment]);
+        } else if ($user[0]->role === config('roles.teacher')) {
+            $tasks = Task::where('createdBy', auth()->id())->get(); //svi profesorovi taskovi
+            $taskRequests = TaskRequest::whereIn('task', $tasks->pluck('id')->toArray())->get(); // svi zahtjevi za profesorove zadatke
+
+            $tasksWithAssignment = $tasks->map(function ($task) use ($taskRequests) {
+                $assignedUsers = $taskRequests->where('task', $task->id)->pluck('user');
+                $assignedUsers = $assignedUsers->map(function ($user) {
+                    $userData = User::where('id', $user)->first();
+                    return [
+                        "id" => $userData->id,
+                        "name" => $userData->name
+                    ];
+                });
+
+                return [
+                    'id' => $task->id,
+                    'name' => $task->name,
+                    'name_en' => $task->name_en,
+                    'users' => $assignedUsers,
+                    'isAssigned' => $task->assignedTo,
+                ];
+            });
+            return view('home', ['objects' => $tasksWithAssignment]);
+        } else {
+            $tasks = Task::all();
+            return view('home', ['objects' => $tasks]);
+        }
     }
 
-    public function assign($taskId, $userId)
+    public function applyToTask($taskId, $userId)
     {
         $taskRequest = new TaskRequest();
         $taskRequest->timestamps = false;
-        $taskRequest->user = $userId; 
-        $taskRequest->task = $taskId; 
+        $taskRequest->user = $userId;
+        $taskRequest->task = $taskId;
         $taskRequest->save();
         return redirect()->route('home');
     }
