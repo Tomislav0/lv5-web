@@ -7,8 +7,12 @@
             alert("{{ session('success') }}");
         </script>
     @endif
-<div class="container">
-    <div>
+    <div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card  p-4">  
+
+                <div class="card-body">
     <form id="taskForm" method="GET" action="{{ route('task', ['lang' => 'en']) }}">
     @csrf
     <select id="localeSelect" name="locale" onchange="updateFormAction()">
@@ -48,6 +52,9 @@
 
         <button type="submit" class="btn btn-primary mt-2">Submit</button>
     </form>
+</div>
+</div>
+</div>
 </div>
 
 <script>
